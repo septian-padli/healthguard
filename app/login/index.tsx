@@ -8,18 +8,20 @@ export default function Login() {
   return (
     <>
       <StatusBar style="light" />
-      <ImageBackground className="flex-1 justify-end items-center pb-10" source={images.bgLogin} resizeMode="cover">
+      <ImageBackground className=" flex-1 justify-end items-center pb-10" source={images.bgLogin} resizeMode="cover">
         <View className="flex flex-col gap-4 w-full px-4">
           <View className="mb-9">
             <Image className="mb-6" source={images.samsungHealthLogo} />
-            <Text className="font-extrabold text-4xl text-white mb-3">Mulai perjalanan hidup sehatmu</Text>
-            <Text className="font-medium text-lg text-white">Take your first stop toward a healthier. More active lifestyle & help you reach your health goals</Text>
+            <Text className="font-jakartaExtraBold text-4xl text-white mb-3 leading-tight">
+              Mulai Perjalanan{'\n'}Hidup Sehatmu
+            </Text>
+            <Text className="font-jakartaMedium text-lg text-gray-300">Take your first stop toward a healthier. More active lifestyle & help you reach your health goals</Text>
           </View>
           <View className="flex flex-col gap-4 w-full items-center">
-            <TouchableOpacity onPress={() => router.push("/")} className="bg-green-normal text-black w-full py-5 rounded">
-              <Text className="font-semibold text-center text-lg">Login with Google</Text>
+            <TouchableOpacity onPress={() => router.push("/safe-tracking")} className="bg-green-normal text-black w-full py-5 rounded">
+              <Text className="font-latoBold text-center text-lg">Login with Google</Text>
             </TouchableOpacity>
-            <Text className="text-white">Support by samsung health</Text>
+            <Text className="text-gray-300 font-jakartaMedium">Support by samsung health</Text>
           </View>
         </View>
       </ImageBackground>
