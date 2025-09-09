@@ -4,7 +4,9 @@ import "./global.css";
 export default function RootLayout() {
   return (
     <>
-      <Stack />
+      <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+      </Stack>
     </>
   )
 }
