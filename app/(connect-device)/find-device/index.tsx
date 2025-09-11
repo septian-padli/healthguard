@@ -7,7 +7,7 @@ export default function FindDevice() {
   const router = useRouter();
   return (
     <>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <View className="flex-1 flex-col justify-end gap-24 items-center py-10 px-4" >
         <View className="gap-12 flex flex-col items-center">
           <Text className="font-jakartaExtraBold text-2xl text-gray-800">Menyiapkan Aplikasi...</Text>

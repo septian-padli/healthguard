@@ -21,9 +21,9 @@ export default function Login() {
             <TouchableOpacity onPress={() => router.push("/find-device")} className="bg-green-normal text-black w-full py-5 rounded">
               <Text className="font-latoBold text-center text-lg">Login with Google</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push("/(tabs)/home")} className="bg-green-normal text-black w-full py-5 rounded">
+            {/* <TouchableOpacity onPress={() => router.push("/(tabs)/home")} className="bg-green-normal text-black w-full py-5 rounded">
               <Text className="font-latoBold text-center text-lg">homepage</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <Text className="text-gray-300 font-jakartaMedium">Support by samsung health</Text>
           </View>
         </View>
