@@ -1,8 +1,10 @@
 import { icons } from '@/constants/icons'
+import { ArrowLeft01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react-native'
 import { Tabs } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 const TabIcon = ({ focused, icon, title }: any) => {
     return focused ? (
@@ -68,13 +70,24 @@ const _Layout = () => {
                 />
                 <Tabs.Screen
                     name="start"
-                    options={{
+                    options={({ navigation }) => ({
                         title: "Start",
-                        headerShown: false,
+                        headerShown: true,
+                        headerTitle: "Safe Track",
+                        headerStyle: { backgroundColor: '#1f2937' },
+                        headerTitleStyle: { color: '#fff', fontWeight: 'bold', fontSize: 20 },
+                        headerTintColor: '#fff',
+                        headerLeft: () => (
+                            <View style={{ paddingLeft: 16, paddingRight: 4 }}>
+                                <TouchableOpacity onPress={() => navigation.goBack()}>
+                                    <HugeiconsIcon strokeWidth={2} icon={ArrowLeft01Icon} className='text-white' size={32} />
+                                </TouchableOpacity>
+                            </View>
+                        ),
                         tabBarIcon: ({ focused }) => (
                             <TabIcon focused={focused} icon={icons.record} title="Start" />
                         ),
-                    }}
+                    })}
                 />
                 <Tabs.Screen
                     name="history"
