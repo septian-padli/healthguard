@@ -18,8 +18,11 @@ export default function Login() {
             <Text className="font-jakartaMedium text-lg text-gray-300">Take your first stop toward a healthier. More active lifestyle & help you reach your health goals</Text>
           </View>
           <View className="flex flex-col gap-4 w-full items-center">
-            <TouchableOpacity onPress={() => router.push("/safe-tracking")} className="bg-green-normal text-black w-full py-5 rounded">
+            <TouchableOpacity onPress={() => router.push("/find-device")} className="bg-green-normal text-black w-full py-5 rounded">
               <Text className="font-latoBold text-center text-lg">Login with Google</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/(tabs)/home")} className="bg-green-normal text-black w-full py-5 rounded">
+              <Text className="font-latoBold text-center text-lg">homepage</Text>
             </TouchableOpacity>
             <Text className="text-gray-300 font-jakartaMedium">Support by samsung health</Text>
           </View>

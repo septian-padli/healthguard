@@ -59,9 +59,10 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="safe-tracking" options={{ headerShown: false }} />
+        <Stack.Screen name="(connect-device)/find-device" options={{ headerShown: false }} />
+        <Stack.Screen name="(connect-device)/connect-device" options={{ headerShown: false }} />
       </Stack>
     </>
   )
