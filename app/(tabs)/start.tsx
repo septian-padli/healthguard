@@ -13,7 +13,7 @@ const Start = () => {
   return (
     <>
       <StatusBar style="light" />
-      <ImageBackground imageStyle={{ borderRadius: 12 }} resizeMode='cover' source={images.map} className="px-4 h-screen relative flex justify-end pb-44 " >
+      <ImageBackground imageStyle={{ borderRadius: 12 }} resizeMode='cover' source={images.map} className="px-4 h-screen relative flex justify-end pb-48 " >
         <TouchableOpacity activeOpacity={0.75} onPress={() => { setDrawerVisible(true) }} className="bg-green-normal text-gray-800 w-full py-5 rounded ">
           <Text className="font-latoBold text-center text-lg">Mulai Olahraga</Text>
         </TouchableOpacity>
@@ -33,12 +33,12 @@ const Start = () => {
           <TouchableOpacity
             activeOpacity={1}
             className="w-full"
-            onPress={() => { }} // prevent closing when clicking inside drawer
+            onPress={() => { }}
           >
             <View className="bg-white w-full rounded-t-2xl p-6 items-center gap-2 flex flex-row">
               <TouchableOpacity activeOpacity={0.5} onPress={() => {
                 setDrawerVisible(false);
-                router.push('/(tabs)/home');
+                router.push('/sport/running');
               }}
                 className="bg-gray-200 w-1/2 p-4 items-center flex flex-row justify-center rounded-xl mb-8 gap-2">
                 <HugeiconsIcon strokeWidth={2} icon={WorkoutRunIcon} className='text-blue-400 mb-1' size={32} />
@@ -46,7 +46,7 @@ const Start = () => {
               </TouchableOpacity>
               <TouchableOpacity activeOpacity={0.5} onPress={() => {
                 setDrawerVisible(false);
-                router.push('/(tabs)/home');
+                router.push('/sport/bicycle');
               }}
                 className="bg-gray-200 w-1/2 p-4 items-center flex flex-row justify-center rounded-xl mb-8 gap-2">
                 <HugeiconsIcon strokeWidth={2} icon={BicycleIcon} className='text-blue-400 mb-1' size={32} />
