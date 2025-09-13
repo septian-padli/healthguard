@@ -4,17 +4,24 @@ import { HugeiconsIcon } from '@hugeicons/react-native'
 import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import React, { useState } from 'react'
-import { ImageBackground, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, ImageBackground, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 const Start = () => {
   const router = useRouter();
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const screenHeight = Dimensions.get('window').height;
+  const inch = screenHeight / 160;
 
   return (
     <>
       <StatusBar style="light" />
       <ImageBackground imageStyle={{ borderRadius: 12 }} resizeMode='cover' source={images.map} className="px-4 h-screen relative flex justify-end pb-48 " >
-        <TouchableOpacity activeOpacity={0.75} onPress={() => { setDrawerVisible(true) }} className="bg-green-normal text-gray-800 w-full py-5 rounded ">
+        <TouchableOpacity
+          activeOpacity={0.75}
+          onPress={() => { setDrawerVisible(true) }}
+          className="bg-green-normal text-gray-800 w-full py-5 rounded"
+          style={{ marginBottom: inch * 5 }}
+        >
           <Text className="font-latoBold text-center text-lg">Mulai Olahraga</Text>
         </TouchableOpacity>
       </ImageBackground>

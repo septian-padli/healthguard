@@ -3,7 +3,8 @@ import { images } from '@/constants/images';
 import { BodyPartSixPackIcon, Fire03Icon, HeartAddIcon, HeartCheckIcon, PauseIcon, PlayIcon, RunningShoesIcon, Time03Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Accelerometer } from 'expo-sensors';
+import React, { useEffect, useState } from 'react';
 import {
     Image,
     SafeAreaView,
@@ -14,15 +15,53 @@ import {
 } from 'react-native';
 
 const SportTracker: React.FC = () => {
+    const [steps, setSteps] = useState<number>(0);
+    const [isCounting, setIsCounting] = useState(false);
+    const [lastY, setLastY] = useState<number | null>(0);
+    const [lastTimestamp, setLastTimestamp] = useState<number | null>(0);
     const [isRunning, setIsRunning] = useState(false);
     const [milliseconds, setMilliseconds] = useState(0);
     const router = useRouter();
     const sportType = useLocalSearchParams().sport as string;
     const imageSport = sportType === 'running' ? images.runScreen : sportType === 'bicycle' ? images.bicycleScreen : images.runScreen;
+    const CALORIES_PER_STEP = 0.04;
+
+    useEffect(() => {
+        let subscription: { remove: () => void } | null = null;
+        if (isRunning) {
+            Accelerometer.isAvailableAsync().then((result) => {
+                if (result) {
+                    subscription = Accelerometer.addListener((accelerometerData) => {
+                        const { y } = accelerometerData;
+                        const thereshold = 0.1;
+                        const timestamp = new Date().getTime();
+
+                        if (Math.abs(y - (lastY ?? 0)) > thereshold && !isCounting && (lastTimestamp === null || (timestamp - lastTimestamp) > 800)) {
+                            setIsCounting(true);
+                            setLastY(y);
+                            setLastTimestamp(timestamp);
+                            setSteps(prev => prev + 1);
+                            setTimeout(() => {
+                                setIsCounting(false);
+                            }, 1200);
+                        }
+                    });
+                } else {
+                    console.log('Accelerometer not available on this device.');
+                }
+            });
+        }
+        return () => {
+            if (subscription) {
+                subscription.remove();
+                subscription = null;
+            }
+        }
+    }, [isRunning, isCounting, lastY, lastTimestamp]);
 
     // Stopwatch effect (10ms interval)
-    React.useEffect(() => {
-        let timer: number | null = null;
+    useEffect(() => {
+        let timer: ReturnType<typeof setInterval> | null = null;
         if (isRunning) {
             timer = setInterval(() => {
                 setMilliseconds(prev => prev + 10);
@@ -42,8 +81,22 @@ const SportTracker: React.FC = () => {
     };
 
     const toggleTimer = () => {
+        if (!isRunning) {
+            setSteps(0); // Reset steps when starting
+            setLastY(0);
+            setLastTimestamp(0);
+        }
         setIsRunning(!isRunning);
     };
+
+    useEffect(() => {
+        if (steps >= 20) { // Sesuaikan ambang langkah sesuai kebutuhan
+            router.replace("/emergency/waiting");
+        }
+    }, [steps]);
+
+    const estimatedCalories = steps * CALORIES_PER_STEP;
+    // Hitung kategori lainnya di sini jika diperlukan
 
     return (
         <SafeAreaView className="flex-1 justify-end items-center bg-gray-50">
@@ -69,7 +122,7 @@ const SportTracker: React.FC = () => {
                             bgColor='bg-orange-50'
                             bgIcon='bg-orange-500'
                             title='Kalori'
-                            value='44 / 500 Kal'
+                            value={`${estimatedCalories.toFixed(0)} / 500 Kal`}
                             index={1}
                             icon={Fire03Icon}
                         />
@@ -109,7 +162,7 @@ const SportTracker: React.FC = () => {
                             bgColor='bg-green-light'
                             bgIcon='bg-green-dark'
                             title='Langkah'
-                            value='2,500'
+                            value={steps.toString()}
                             index={6}
                             icon={RunningShoesIcon}
                         />
