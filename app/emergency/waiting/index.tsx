@@ -1,6 +1,5 @@
 import { images } from '@/constants/images'
 import { useRouter } from 'expo-router'
-import { goBack } from 'expo-router/build/global-state/routing'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
@@ -22,7 +21,7 @@ const WaitingEmergency = () => {
                     </View>
                 </View>
                 <View>
-                    <TouchableOpacity onPress={() => goBack()} className="bg-green-normal w-full py-5 rounded-xl">
+                    <TouchableOpacity onPress={() => router.back()} className="bg-green-normal w-full py-5 rounded-xl">
                         <Text className="font-latoBold text-center text-base text-gray-900 ">Saya Aman Sekarang</Text>
                     </TouchableOpacity>
                 </View>

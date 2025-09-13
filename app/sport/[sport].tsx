@@ -1,9 +1,11 @@
 import StatCard from '@/components/StatCard';
 import { images } from '@/constants/images';
+import { useSport } from "@/context/SportContext";
 import { ArrowLeft01Icon, BloodPressureIcon, Fire03Icon, HeartCheckIcon, LungsIcon, PauseIcon, PlayIcon, Route01Icon, RunningShoesIcon, Time02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Accelerometer } from 'expo-sensors';
+import React, { useEffect, useState } from 'react';
 import {
     BackHandler,
     Image,
@@ -17,12 +19,49 @@ import {
 } from 'react-native';
 
 const SportTracker: React.FC = () => {
-    const [isRunning, setIsRunning] = useState(false);
-    const [milliseconds, setMilliseconds] = useState(0);
+    const { steps, setSteps, isRunning, setIsRunning, milliseconds, setMilliseconds } = useSport();
+
+    const [isCounting, setIsCounting] = useState(false);
+    const [lastY, setLastY] = useState<number | null>(0);
+    const [lastTimestamp, setLastTimestamp] = useState<number | null>(0);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const router = useRouter();
     const sportType = useLocalSearchParams().sport as string;
     const imageSport = sportType === 'running' ? images.runScreen : sportType === 'bicycle' ? images.bicycleScreen : images.runScreen;
+    const CALORIES_PER_STEP = 0.04;
+
+    useEffect(() => {
+        let subscription: { remove: () => void } | null = null;
+        if (isRunning) {
+            Accelerometer.isAvailableAsync().then((result) => {
+                if (result) {
+                    subscription = Accelerometer.addListener((accelerometerData) => {
+                        const { y } = accelerometerData;
+                        const thereshold = 0.1;
+                        const timestamp = new Date().getTime();
+
+                        if (Math.abs(y - (lastY ?? 0)) > thereshold && !isCounting && (lastTimestamp === null || (timestamp - lastTimestamp) > 800)) {
+                            setIsCounting(true);
+                            setLastY(y);
+                            setLastTimestamp(timestamp);
+                            setSteps(prev => prev + 1);
+                            setTimeout(() => {
+                                setIsCounting(false);
+                            }, 1200);
+                        }
+                    });
+                } else {
+                    console.log('Accelerometer not available on this device.');
+                }
+            });
+        }
+        return () => {
+            if (subscription) {
+                subscription.remove();
+                subscription = null;
+            }
+        }
+    }, [isRunning, isCounting, lastY, lastTimestamp]);
 
     // back to start function
     function backToStart() {
@@ -32,8 +71,8 @@ const SportTracker: React.FC = () => {
     }
 
     // Stopwatch effect (10ms interval)
-    React.useEffect(() => {
-        let timer: number | null = null;
+    useEffect(() => {
+        let timer: ReturnType<typeof setInterval> | null = null;
         if (isRunning) {
             timer = setInterval(() => {
                 setMilliseconds(prev => prev + 10);
@@ -53,6 +92,11 @@ const SportTracker: React.FC = () => {
     };
 
     const toggleTimer = () => {
+        // if (!isRunning) {
+        //     setSteps(0); // Reset steps when starting
+        //     setLastY(0);
+        //     setLastTimestamp(0);
+        // }
         setIsRunning(!isRunning);
     };
 
@@ -69,6 +113,16 @@ const SportTracker: React.FC = () => {
             return () => sub.remove();
         }, [showConfirmModal])
     );
+
+    useEffect(() => {
+        if (steps >= 5) {
+
+            router.replace("/emergency/waiting");
+        }
+    }, [router, steps]);
+
+    const estimatedCalories = steps * CALORIES_PER_STEP;
+    // Hitung kategori lainnya di sini jika diperlukan
 
     return (
         <SafeAreaView className="flex-1 justify-end items-center bg-gray-50">
@@ -99,8 +153,8 @@ const SportTracker: React.FC = () => {
                         <StatCard
                             bgColor='bg-orange-50'
                             bgIcon='bg-orange-500'
-                            title='Calories'
-                            value='320 kcal'
+                            title='Kalori'
+                            value={`${estimatedCalories.toFixed(0)} / 500 Kal`}
                             index={1}
                             icon={Fire03Icon}
                         />
@@ -109,7 +163,7 @@ const SportTracker: React.FC = () => {
                                 bgColor='bg-green-light'
                                 bgIcon='bg-green-dark'
                                 title='Steps'
-                                value='6,540 steps'
+                                value={steps.toString()}
                                 index={2}
                                 icon={RunningShoesIcon}
                             />
@@ -118,7 +172,7 @@ const SportTracker: React.FC = () => {
                                 bgColor='bg-green-light'
                                 bgIcon='bg-green-dark'
                                 title='Distance'
-                                value='1 km'
+                                value={steps.toString() + ' km'}
                                 index={2}
                                 icon={Route01Icon}
                             />
@@ -151,7 +205,7 @@ const SportTracker: React.FC = () => {
                             bgColor='bg-teal-50'
                             bgIcon='bg-teal-500'
                             title='Blood Oxygen'
-                            value='97 %'
+                            value='98%'
                             index={6}
                             icon={LungsIcon}
                         />
