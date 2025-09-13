@@ -21,7 +21,7 @@ const WaitingEmergency = () => {
                     </View>
                 </View>
                 <View>
-                    <TouchableOpacity onPress={() => router.back()} className="bg-green-normal w-full py-5 rounded-xl">
+                    <TouchableOpacity onPress={() => router.dismiss()} className="bg-green-normal w-full py-5 rounded-xl">
                         <Text className="font-latoBold text-center text-base text-gray-900 ">Saya Aman Sekarang</Text>
                     </TouchableOpacity>
                 </View>

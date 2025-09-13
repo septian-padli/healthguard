@@ -1,9 +1,9 @@
 import StatCard from '@/components/StatCard';
 import { images } from '@/constants/images';
-import { useSport } from "@/context/SportContext";
+import { callDeepSeekAPI } from '@/utils/api-call-deepseek';
 import { ArrowLeft01Icon, BloodPressureIcon, Fire03Icon, HeartCheckIcon, LungsIcon, PauseIcon, PlayIcon, Route01Icon, RunningShoesIcon, Time02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react-native';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import { Accelerometer } from 'expo-sensors';
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,16 +19,19 @@ import {
 } from 'react-native';
 
 const SportTracker: React.FC = () => {
-    const { steps, setSteps, isRunning, setIsRunning, milliseconds, setMilliseconds } = useSport();
-
+    const [steps, setSteps] = useState<number>(0);
     const [isCounting, setIsCounting] = useState(false);
     const [lastY, setLastY] = useState<number | null>(0);
     const [lastTimestamp, setLastTimestamp] = useState<number | null>(0);
+    const [isRunning, setIsRunning] = useState(false);
+    const [milliseconds, setMilliseconds] = useState(0);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const router = useRouter();
     const sportType = useLocalSearchParams().sport as string;
     const imageSport = sportType === 'running' ? images.runScreen : sportType === 'bicycle' ? images.bicycleScreen : images.runScreen;
     const CALORIES_PER_STEP = 0.04;
+    let pathname = usePathname();
+    const [bodyCondition, setBodyCondition] = useState('hmm');
 
     useEffect(() => {
         let subscription: { remove: () => void } | null = null;
@@ -114,12 +117,27 @@ const SportTracker: React.FC = () => {
         }, [showConfirmModal])
     );
 
-    useEffect(() => {
-        if (steps >= 5) {
-
-            router.replace("/emergency/waiting");
+    const statusConditionBody = async () => {
+        try {
+            console.log("otw result");
+            const result = await callDeepSeekAPI(`Saya sedang berolahraga ${sportType}. Saya sudah berjalan sebanyak ${steps} steps. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`);
+            console.log(result, "raw result");
+            setBodyCondition(result?.trim() ?? 'error');
+        } catch (err) {
+            console.error("API error:", err);
+            setBodyCondition('error');
         }
-    }, [router, steps]);
+    }
+
+    useEffect(() => {
+        if (
+            steps > 0 &&
+            steps % 5 === 0 &&
+            pathname.includes('sport')
+        ) {
+            statusConditionBody();
+        }
+    }, [steps]);
 
     const estimatedCalories = steps * CALORIES_PER_STEP;
     // Hitung kategori lainnya di sini jika diperlukan
@@ -147,6 +165,7 @@ const SportTracker: React.FC = () => {
                         </Text>
                     </View>
                     <Text className="text-base font-jakartaMedium text-gray-700 text-center">Total Duration</Text>
+                    <Text className="text-base font-jakartaMedium text-gray-700 text-center">{bodyCondition}</Text>
                 </View>
                 <View className=" w-full h-fit mb-8">
                     <View className='flex flex-row flex-wrap'>

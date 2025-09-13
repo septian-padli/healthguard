@@ -1,4 +1,4 @@
-import "dotenv/config";
+// import "dotenv/config";
 
 export interface DeepSeekMessage {
 	role: "user" | "assistant" | string;
@@ -14,10 +14,9 @@ export interface DeepSeekResponse {
 }
 
 export async function callDeepSeekAPI(query: string): Promise<string> {
-	const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-	const DEEPSEEK_API_URL =
-		process.env.DEEPSEEK_API_URL ||
-		"https://openrouter.ai/api/v1/chat/completions";
+	const DEEPSEEK_API_KEY =
+		"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";
+	const DEEPSEEK_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 	const response = await fetch(DEEPSEEK_API_URL, {
 		method: "POST",
