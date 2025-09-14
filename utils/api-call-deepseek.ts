@@ -15,7 +15,7 @@ export interface DeepSeekResponse {
 
 export async function callDeepSeekAPI(query: string): Promise<string> {
 	const DEEPSEEK_API_KEY =
-		"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";
+		"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";
 	const DEEPSEEK_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 	const response = await fetch(DEEPSEEK_API_URL, {

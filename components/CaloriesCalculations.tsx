@@ -48,7 +48,7 @@ export const calculateTotalCalories = (
  * Format calories for display with target
  */
 export const formatCaloriesWithTarget = (calories: number, target: number = 500): string => {
-  return `${calories.toFixed(0)} / ${target} Kal`;
+  return `${calories.toFixed(0)} Kal`;
 };
 
 /**

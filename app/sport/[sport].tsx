@@ -39,17 +39,26 @@ import {
   View,
 } from "react-native";
 
-// Import from feat-fatra modular architecture (create these files if they don't exist)
 import { SPORT_CONSTANTS } from "@/app-example/constants/Sports";
 import { SportType, SportState } from "@/app-example/types/sport-types";
+
 import { DurationDisplay } from "@/app-example/utils/DurationUtils";
+
 import { DistanceDisplay } from "@/components/DistanceCalculations";
 import { PaceDisplay } from "@/components/PaceCalculations";
 import { CaloriesDisplay } from "@/components/CaloriesCalculations";
+
 import {
   isStepDetected,
   StepCounterDisplay,
 } from "@/app-example/utils/StepDetectionUtils";
+
+import {
+  HeartRateDisplay,
+  SpO2Display,
+  BloodPressureDisplay,
+  CadenceDisplay,
+} from "@/components/HealthMetricsDisplay";
 
 const SportTracker: React.FC = () => {
   // Use modular state management from feat-fatra
@@ -77,7 +86,7 @@ const SportTracker: React.FC = () => {
         ? images.bicycleScreen
         : images.runScreen;
 
-  const CALORIES_PER_STEP = 0.04;
+  const CALORIES_PER_STEP = SPORT_CONSTANTS.CALORIES_PER_STEP;
 
   // Accelerometer effect with modular step detection
   useEffect(() => {
@@ -298,7 +307,6 @@ const SportTracker: React.FC = () => {
             Total Duration
           </Text>
 
-          {/* AI body condition status from integrate-ai */}
           {bodyCondition.includes("Normal") ? (
             <Text className="text-base font-jakartaMedium text-gray-500 text-center">
               Ayo! Kamu pasti bisa!
@@ -395,15 +403,28 @@ const SportTracker: React.FC = () => {
               bgColor="bg-blue-50"
               bgIcon="bg-blue-500"
               title="Blood Pressure"
-              value="118/76 mmHg"
+              value={
+                <BloodPressureDisplay
+                  sportType={sportType}
+                  steps={sportState.steps}
+                  milliseconds={sportState.milliseconds}
+                />
+              }
               index={4}
               icon={BloodPressureIcon}
             />
+
             <StatCard
               bgColor="bg-rose-50"
               bgIcon="bg-rose-500"
               title={"Heart\nRate"}
-              value="132 bpm"
+              value={
+                <HeartRateDisplay
+                  sportType={sportType}
+                  steps={sportState.steps}
+                  milliseconds={sportState.milliseconds}
+                />
+              }
               index={5}
               icon={HeartCheckIcon}
             />
@@ -411,10 +432,17 @@ const SportTracker: React.FC = () => {
               bgColor="bg-teal-50"
               bgIcon="bg-teal-500"
               title="Blood Oxygen"
-              value="98%"
+              value={
+                <SpO2Display
+                  sportType={sportType}
+                  steps={sportState.steps}
+                  milliseconds={sportState.milliseconds}
+                />
+              }
               index={6}
               icon={LungsIcon}
             />
+            
           </View>
         </View>
 
