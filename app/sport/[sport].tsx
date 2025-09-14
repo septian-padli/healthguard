@@ -1,6 +1,6 @@
 import StatCard from '@/components/StatCard';
 import { images } from '@/constants/images';
-import { BodyPartSixPackIcon, Fire03Icon, HeartAddIcon, HeartCheckIcon, PauseIcon, PlayIcon, RunningShoesIcon, Time03Icon } from '@hugeicons/core-free-icons';
+import { BodyPartSixPackIcon, Fire03Icon, HeartAddIcon, HeartCheckIcon, PauseIcon, PlayIcon, RunningShoesIcon, Time03Icon, Route01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Accelerometer } from 'expo-sensors';
@@ -14,36 +14,61 @@ import {
     View
 } from 'react-native';
 
-const SportTracker: React.FC = () => {
-    const [steps, setSteps] = useState<number>(0);
-    const [isCounting, setIsCounting] = useState(false);
-    const [lastY, setLastY] = useState<number | null>(0);
-    const [lastTimestamp, setLastTimestamp] = useState<number | null>(0);
-    const [isRunning, setIsRunning] = useState(false);
-    const [milliseconds, setMilliseconds] = useState(0);
-    const router = useRouter();
-    const sportType = useLocalSearchParams().sport as string;
-    const imageSport = sportType === 'running' ? images.runScreen : sportType === 'bicycle' ? images.bicycleScreen : images.runScreen;
-    const CALORIES_PER_STEP = 0.04;
+// @message: Beberapa file ini diimpor buat modularisasi kode dan memisahkan logika perhitungan dari komponen UI utama.
+// Untuk memudahkan pembacaan dan perubahan, dapat dicek melalui path berikut:
+import { SPORT_CONSTANTS } from '@/app-example/constants/Sports';
+import { SportType, SportState } from '@/app-example/types/sport-types';
 
+// Import Utilitas
+import { DurationDisplay } from '@/app-example/utils/DurationUtils';
+
+// Import Komponen
+import { DistanceDisplay } from '@/components/DistanceCalculations';
+import { PaceDisplay } from '@/components/PaceCalculations';
+import { CaloriesDisplay } from '@/components/CaloriesCalculations';
+import { isStepDetected, StepCounterDisplay } from '@/app-example/utils/StepDetectionUtils';
+
+const SportTracker: React.FC = () => {
+    const [sportState, setSportState] = useState<SportState>({
+        steps: 0,
+        isCounting: false,
+        lastY: 0,
+        lastTimestamp: 0,
+        isRunning: false,
+        milliseconds: 0
+    });
+
+    const router = useRouter();
+    const sportType = useLocalSearchParams().sport as SportType;
+    const imageSport = sportType === 'running' ? images.runScreen : 
+                      sportType === 'bicycle' ? images.bicycleScreen : 
+                      images.runScreen;
+
+    // Accelerometer effect
     useEffect(() => {
         let subscription: { remove: () => void } | null = null;
-        if (isRunning) {
+        if (sportState.isRunning) {
             Accelerometer.isAvailableAsync().then((result) => {
                 if (result) {
                     subscription = Accelerometer.addListener((accelerometerData) => {
                         const { y } = accelerometerData;
-                        const thereshold = 0.1;
                         const timestamp = new Date().getTime();
 
-                        if (Math.abs(y - (lastY ?? 0)) > thereshold && !isCounting && (lastTimestamp === null || (timestamp - lastTimestamp) > 800)) {
-                            setIsCounting(true);
-                            setLastY(y);
-                            setLastTimestamp(timestamp);
-                            setSteps(prev => prev + 1);
+                        if (isStepDetected(y, sportState.lastY, sportState.isCounting, sportState.lastTimestamp)) {
+                            setSportState(prev => ({
+                                ...prev,
+                                isCounting: true,
+                                lastY: y,
+                                lastTimestamp: timestamp,
+                                steps: prev.steps + 1
+                            }));
+                            
                             setTimeout(() => {
-                                setIsCounting(false);
-                            }, 1200);
+                                setSportState(prev => ({
+                                    ...prev,
+                                    isCounting: false
+                                }));
+                            }, SPORT_CONSTANTS.COUNTING_TIMEOUT);
                         }
                     });
                 } else {
@@ -57,46 +82,47 @@ const SportTracker: React.FC = () => {
                 subscription = null;
             }
         }
-    }, [isRunning, isCounting, lastY, lastTimestamp]);
+    }, [sportState.isRunning, sportState.isCounting, sportState.lastY, sportState.lastTimestamp]);
 
-    // Stopwatch effect (10ms interval)
+    // Stopwatch effect
     useEffect(() => {
         let timer: ReturnType<typeof setInterval> | null = null;
-        if (isRunning) {
+        if (sportState.isRunning) {
             timer = setInterval(() => {
-                setMilliseconds(prev => prev + 10);
+                setSportState(prev => ({
+                    ...prev,
+                    milliseconds: prev.milliseconds + 10
+                }));
             }, 10);
         }
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [isRunning]);
+    }, [sportState.isRunning]);
 
-    // Format milliseconds to MM:SS:MS (langsung di render)
-    const formatDuration = (ms: number) => {
-        const mins = Math.floor(ms / 60000);
-        const secs = Math.floor((ms % 60000) / 1000);
-        const centis = Math.floor((ms % 1000) / 10);
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${centis.toString().padStart(2, '0')}`;
-    };
-
-    const toggleTimer = () => {
-        if (!isRunning) {
-            setSteps(0); // Reset steps when starting
-            setLastY(0);
-            setLastTimestamp(0);
-        }
-        setIsRunning(!isRunning);
-    };
-
+    // Emergency detection effect
     useEffect(() => {
-        if (steps >= 20) { // Sesuaikan ambang langkah sesuai kebutuhan
+        if (sportState.steps >= SPORT_CONSTANTS.EMERGENCY_STEP_LIMIT) {
             router.replace("/emergency/waiting");
         }
-    }, [steps]);
+    }, [sportState.steps]);
 
-    const estimatedCalories = steps * CALORIES_PER_STEP;
-    // Hitung kategori lainnya di sini jika diperlukan
+    const toggleTimer = () => {
+        if (!sportState.isRunning) {
+            // Reset when starting
+            setSportState(prev => ({
+                ...prev,
+                steps: 0,
+                lastY: 0,
+                lastTimestamp: 0,
+                milliseconds: 0
+            }));
+        }
+        setSportState(prev => ({
+            ...prev,
+            isRunning: !prev.isRunning
+        }));
+    };
 
     return (
         <SafeAreaView className="flex-1 justify-end items-center bg-gray-50">
@@ -106,23 +132,32 @@ const SportTracker: React.FC = () => {
 
             <View className='flex justify-end items-center pb-10 pt-12 px-4 bg-white rounded-t-3xl relative z-10 w-full'>
                 <TouchableOpacity onPress={toggleTimer} className="bg-green-normal text-gray-800 aspect-square flex justify-center items-center py-4 mb-6 rounded-xl">
-                    <HugeiconsIcon strokeWidth={3} icon={isRunning ? PauseIcon : PlayIcon} className='text-gray-800 mb-1' size={32} />
+                    <HugeiconsIcon strokeWidth={3} icon={sportState.isRunning ? PauseIcon : PlayIcon} className='text-gray-800 mb-1' size={32} />
                 </TouchableOpacity>
+                
                 <View className=" w-full mb-8 ">
                     <View className="w-48 mx-auto flex flex-row justify-start pl-2">
-                        <Text className="text-4xl font-jakartaExtraBold text-gray-900">
-                            {formatDuration(milliseconds)}
-                        </Text>
+                        <DurationDisplay 
+                            milliseconds={sportState.milliseconds}
+                            className="text-4xl font-jakartaExtraBold text-gray-900"
+                        />
                     </View>
                     <Text className="text-base font-jakartaMedium text-gray-700 text-center">Total Duration</Text>
                 </View>
+                
                 <View className=" w-full h-fit mb-8">
                     <View className='flex flex-row flex-wrap'>
                         <StatCard
                             bgColor='bg-orange-50'
                             bgIcon='bg-orange-500'
                             title='Kalori'
-                            value={`${estimatedCalories.toFixed(0)} / 500 Kal`}
+                            value={
+                                <CaloriesDisplay 
+                                    sportType={sportType}
+                                    steps={sportState.steps}
+                                    milliseconds={sportState.milliseconds}
+                                />
+                            }
                             index={1}
                             icon={Fire03Icon}
                         />
@@ -138,7 +173,13 @@ const SportTracker: React.FC = () => {
                             bgColor='bg-purple-50'
                             bgIcon='bg-purple-500'
                             title='Avg Pace'
-                            value='5:25/km'
+                            value={
+                                <PaceDisplay 
+                                    sportType={sportType}
+                                    steps={sportState.steps}
+                                    milliseconds={sportState.milliseconds}
+                                />
+                            }
                             index={3}
                             icon={Time03Icon}
                         />
@@ -161,13 +202,21 @@ const SportTracker: React.FC = () => {
                         <StatCard
                             bgColor='bg-green-light'
                             bgIcon='bg-green-dark'
-                            title='Langkah'
-                            value={steps.toString()}
+                            title={sportType === 'bicycle' ? 'Jarak' : 'Langkah'}
+                            value={sportType === 'bicycle' ? 
+                                <DistanceDisplay 
+                                    sportType={sportType}
+                                    steps={sportState.steps}
+                                    milliseconds={sportState.milliseconds}
+                                /> : 
+                                <StepCounterDisplay steps={sportState.steps} />
+                            }
                             index={6}
-                            icon={RunningShoesIcon}
+                            icon={sportType === 'bicycle' ? Route01Icon : RunningShoesIcon}
                         />
                     </View>
                 </View>
+                
                 <TouchableOpacity onPress={() => router.push("/emergency/waiting")} className="bg-red-400 w-full py-5 rounded-xl">
                     <Text className="font-latoBold text-center text-base text-white ">Emergency</Text>
                 </TouchableOpacity>

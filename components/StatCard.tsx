@@ -6,7 +6,9 @@ interface StatCardProps {
     index: number;
     icon: any;
     title: string;
-    value: string;
+    
+    // Karena di StatCard ngirim element JSX
+    value: React.ReactNode;
     bgIcon: string;
     bgColor: string;
 }
