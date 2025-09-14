@@ -6,7 +6,8 @@ interface StatCardProps {
     index: number;
     icon: any;
     title: string;
-    value: string;
+    // Karena valuenya bakalan komponen react
+    value: React.ReactNode;
     bgIcon: string;
     bgColor: string;
 }
