@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text, View } from 'react-native';
 
 interface DurationDisplayProps {
   milliseconds: number;
@@ -27,8 +28,8 @@ export const millisecondsToMinutes = (ms: number): number => {
 // Komponen untuk menampilkan durasi dalam format MM:SS:MS
 export const DurationDisplay: React.FC<DurationDisplayProps> = ({ milliseconds, className }) => {
   return (
-    <span className={className}>
-      {formatDuration(milliseconds)}
-    </span>
+    <View className={className }>
+      <Text className="text-4xl font-jakartaExtraBold text-gray-900">{formatDuration(milliseconds)}</Text>
+    </View>
   );
 };

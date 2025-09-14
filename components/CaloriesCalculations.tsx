@@ -4,6 +4,8 @@ import { SPORT_CONSTANTS } from '@/app-example/constants/Sports';
 import { SportType } from '@/app-example/types/sport-types';
 import { millisecondsToHours } from '@/app-example/utils/DurationUtils';
 
+import { Text, View } from 'react-native';
+
 
 /**
  * Calculate estimated calories burned based on steps
@@ -74,8 +76,8 @@ export const CaloriesDisplay: React.FC<CaloriesDisplayProps> = ({
   const calories = calculateTotalCalories(sportType, steps, milliseconds, intensity);
   
   return (
-    <span className={className}>
+    <Text className={className}>
       {showTarget ? formatCaloriesWithTarget(calories, target) : `${calories.toFixed(0)} Kal`}
-    </span>
+    </Text>
   );
 };

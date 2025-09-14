@@ -4,6 +4,8 @@ import React from 'react';
 import { SPORT_CONSTANTS } from '@/app-example/constants/Sports';
 import { SportType } from '@/app-example/types/sport-types';
 
+import { Text } from 'react-native';
+
 // Interface jarak
 interface DistanceDisplayProps {
   sportType: SportType;
@@ -64,8 +66,8 @@ export const DistanceDisplay: React.FC<DistanceDisplayProps> = ({
   const distance = formatDistance(sportType, steps, milliseconds);
   
   return (
-    <span className={className}>
+    <Text className={className}>
       {showUnit ? distance : distance.split(' ')[0]}
-    </span>
+    </Text>
   );
 };

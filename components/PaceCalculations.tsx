@@ -8,6 +8,8 @@ import { SportType } from '@/app-example/types/sport-types';
 import { millisecondsToHours, millisecondsToMinutes } from '@/app-example/utils/DurationUtils';
 import { getDistanceInKm } from './DistanceCalculations';
 
+import { Text } from 'react-native';
+
 // Buat nampilin pace
 interface PaceDisplayProps {
   sportType: SportType;
@@ -68,8 +70,8 @@ export const PaceDisplay: React.FC<PaceDisplayProps> = ({
   const pace = calculateAveragePace(sportType, steps, milliseconds);
   
   return (
-    <span className={className}>
+    <Text className={className}>
       {pace}
-    </span>
+    </Text>
   );
 };

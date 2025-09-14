@@ -1,5 +1,7 @@
 import React from 'react';
 import { SPORT_CONSTANTS } from '@/app-example/constants/Sports';
+import { Text} from 'react-native';
+
 
 // Interface untuk menampilkan jumlah langkah
 interface StepCounterDisplayProps {
@@ -50,8 +52,8 @@ export const StepCounterDisplay: React.FC<StepCounterDisplayProps> = ({
   showLabel = false 
 }) => {
   return (
-    <span className={className}>
+    <Text className={className}>
       {steps}{showLabel && ' langkah'}
-    </span>
+    </Text>
   );
 };
