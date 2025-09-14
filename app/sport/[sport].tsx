@@ -114,7 +114,7 @@ const SportTracker: React.FC = () => {
     );
 
     const statusConditionBody = async () => {
-        const queryAi = sportType === 'running' ? `Saya laki-laki berumur 20 tahun dengan berat badan 70 kg dan tinggi badan 173 cm dan tidak pernah berolahraga. Saya sedang berolahraga running. Saya sudah berjalan sebanyak ${steps * 100000} steps dengan durasi ${formatDuration(milliseconds * 60)} jam. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`
+        const queryAi = sportType === 'running' ? `Saya laki-laki berumur 20 tahun dengan berat badan 70 kg dan tinggi badan 173 cm dan tidak pernah berolahraga. Saya sedang berolahraga running. Saya sudah berjalan sebanyak ${steps} steps dengan durasi ${formatDuration(milliseconds)} jam. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`
             : `Saya laki-laki berumur 20 tahun dengan berat badan 70 kg dan tinggi badan 173 cm dan tidak pernah berolahraga. Saya sedang berolahraga bersepeda. Saya sudah bersepeda sebanyak ${steps} km dengan durasi ${formatDuration(milliseconds)}. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`
         try {
             const result = await callDeepSeekAPI(queryAi);
