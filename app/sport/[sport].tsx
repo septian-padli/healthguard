@@ -137,9 +137,10 @@ const SportTracker: React.FC = () => {
     }, [steps]);
 
     useEffect(() => {
-        if (bodyCondition.includes('Bahaya') || bodyCondition.includes('Lelah')) {
+        // if (bodyCondition.includes('Bahaya') || bodyCondition.includes('Lelah')) {
+        if (bodyCondition.includes('Bahaya')) {
             setIsRunning(false);
-            router.push('/emergency/waiting');
+            router.push(`/emergency/waiting?duration=${encodeURIComponent(formatDuration(milliseconds))}&steps=${encodeURIComponent(steps)}&condition=${encodeURIComponent(bodyCondition)}`);
         }
     }, [bodyConditionTrigger]);
 

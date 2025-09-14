@@ -5,6 +5,11 @@ import { BackHandler, Image, SafeAreaView, StatusBar, StyleSheet, Text, Touchabl
 
 const WaitingEmergency = () => {
     const router = useRouter();
+    // router.push(`/emergency/waiting?duration=${encodeURIComponent(formatDuration(milliseconds))}&steps=${encodeURIComponent(steps)}&condition=${encodeURIComponent(bodyCondition)}`);
+    const params = new URLSearchParams(window.location.search);
+    const duration = params.get('duration') || 'N/A';
+    const steps = params.get('steps') || 'N/A';
+    const condition = params.get('condition') || 'N/A';
 
     useFocusEffect(
         useCallback(() => {
@@ -25,7 +30,9 @@ const WaitingEmergency = () => {
                     <View className=''>
                         <Text className='text-white font-jakartaBold text-base mb-2'>SOS</Text>
                         <Text className='text-white font-jakartaBold text-3xl mb-2'>Emergency Calling...</Text>
-                        <Text className='font-jakartaMedium text-gray-300 text-sm'>Saat ini anda blablabla</Text>
+                        {duration !== 'N/A' && steps !== 'N/A' && condition !== 'N/A' && (
+                            <Text className='font-jakartaMedium text-gray-300 text-sm'>Saat ini anda sudah berolahraga selama {duration}, dan sejauh {steps} langkah. Kondisi tubuh anda: {condition}</Text>
+                        )}
                         <Text className='font-jakartaMedium text-gray-300 text-sm'>Your contact, app users nearby, and your organization will see your request help</Text>
                     </View>
                 </View>
