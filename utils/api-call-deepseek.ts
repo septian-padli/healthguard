@@ -15,7 +15,7 @@ export interface DeepSeekResponse {
 
 export async function callDeepSeekAPI(query: string): Promise<string> {
 	const DEEPSEEK_API_KEY =
-		"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";
+		"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";
 	const DEEPSEEK_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 	const response = await fetch(DEEPSEEK_API_URL, {
@@ -25,7 +25,7 @@ export async function callDeepSeekAPI(query: string): Promise<string> {
 			Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
 		},
 		body: JSON.stringify({
-			model: "deepseek/deepseek-chat:free",
+			model: "openai/gpt-4o",
 			messages: [
 				{
 					role: "user",
@@ -39,10 +39,11 @@ export async function callDeepSeekAPI(query: string): Promise<string> {
 
 	if (!response.ok) {
 		const errorData = await response.json();
-		throw new Error(errorData.error?.message || "API request failed");
+		throw new Error(
+			errorData.error?.code + errorData.error?.message || "API request failed"
+		);
 	}
 
 	const data: DeepSeekResponse = await response.json();
-	console.log("Result: ", data.choices[0].message.content);
 	return data.choices[0].message.content;
 }

@@ -31,7 +31,8 @@ const SportTracker: React.FC = () => {
     const imageSport = sportType === 'running' ? images.runScreen : sportType === 'bicycle' ? images.bicycleScreen : images.runScreen;
     const CALORIES_PER_STEP = 0.04;
     let pathname = usePathname();
-    const [bodyCondition, setBodyCondition] = useState('hmm');
+    const [bodyCondition, setBodyCondition] = useState('Semangat Olahraga');
+    const [bodyConditionTrigger, setBodyConditionTrigger] = useState(0);
 
     useEffect(() => {
         let subscription: { remove: () => void } | null = null;
@@ -95,11 +96,6 @@ const SportTracker: React.FC = () => {
     };
 
     const toggleTimer = () => {
-        // if (!isRunning) {
-        //     setSteps(0); // Reset steps when starting
-        //     setLastY(0);
-        //     setLastTimestamp(0);
-        // }
         setIsRunning(!isRunning);
     };
 
@@ -118,11 +114,12 @@ const SportTracker: React.FC = () => {
     );
 
     const statusConditionBody = async () => {
+        const queryAi = sportType === 'running' ? `Saya laki-laki berumur 20 tahun dengan berat badan 70 kg dan tinggi badan 173 cm dan tidak pernah berolahraga. Saya sedang berolahraga running. Saya sudah berjalan sebanyak ${steps * 100000} steps dengan durasi ${formatDuration(milliseconds * 60)} jam. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`
+            : `Saya laki-laki berumur 20 tahun dengan berat badan 70 kg dan tinggi badan 173 cm dan tidak pernah berolahraga. Saya sedang berolahraga bersepeda. Saya sudah bersepeda sebanyak ${steps} km dengan durasi ${formatDuration(milliseconds)}. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`
         try {
-            console.log("otw result");
-            const result = await callDeepSeekAPI(`Saya sedang berolahraga ${sportType}. Saya sudah berjalan sebanyak ${steps} steps. Bagaimana kondisi tubuh saya sekarang? Apakah normal, lelah, atau berbahaya? Berikan jawaban singkat hanya satu kata: normal, lelah, atau bahaya.`);
-            console.log(result, "raw result");
+            const result = await callDeepSeekAPI(queryAi);
             setBodyCondition(result?.trim() ?? 'error');
+            setBodyConditionTrigger(prev => prev + 1);
         } catch (err) {
             console.error("API error:", err);
             setBodyCondition('error');
@@ -139,12 +136,19 @@ const SportTracker: React.FC = () => {
         }
     }, [steps]);
 
+    useEffect(() => {
+        if (bodyCondition.includes('Bahaya') || bodyCondition.includes('Lelah')) {
+            setIsRunning(false);
+            router.push('/emergency/waiting');
+        }
+    }, [bodyConditionTrigger]);
+
     const estimatedCalories = steps * CALORIES_PER_STEP;
     // Hitung kategori lainnya di sini jika diperlukan
 
     return (
         <SafeAreaView className="flex-1 justify-end items-center bg-gray-50">
-            <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+            <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
 
             <Image source={imageSport} className="w-full aspect-video object-cover absolute -top-20 left-0" />
             <TouchableOpacity
@@ -164,8 +168,24 @@ const SportTracker: React.FC = () => {
                             {formatDuration(milliseconds)}
                         </Text>
                     </View>
-                    <Text className="text-base font-jakartaMedium text-gray-700 text-center">Total Duration</Text>
-                    <Text className="text-base font-jakartaMedium text-gray-700 text-center">{bodyCondition}</Text>
+                    <Text className="text-base font-jakartaMedium text-gray-700 text-center mb-1">Total Duration</Text>
+                    {
+                        bodyCondition.includes('Normal') ? (
+                            <Text className="text-base font-jakartaMedium text-gray-500 text-center">
+                                Ayo! Kamu pasti bisa!
+                            </Text>
+                        ) : bodyCondition.includes('Lelah') ? (
+                            <Text className="text-base font-jakartaMedium text-amber-600 text-center">
+                                Anda lelah, mari beristirahat sejenak
+                            </Text>
+                        ) : bodyCondition.includes('Bahaya') ? (
+                            <Text className="text-base font-jakartaMedium text-red-600 text-center">
+                                Dalam Bahaya! Segera cari bantuan.
+                            </Text>
+                        ) : <Text className="text-base font-jakartaMedium text-rgray-500 text-center">
+                            Semangat Olahraga!
+                        </Text>
+                    }
                 </View>
                 <View className=" w-full h-fit mb-8">
                     <View className='flex flex-row flex-wrap'>
@@ -173,7 +193,7 @@ const SportTracker: React.FC = () => {
                             bgColor='bg-orange-50'
                             bgIcon='bg-orange-500'
                             title='Kalori'
-                            value={`${estimatedCalories.toFixed(0)} / 500 Kal`}
+                            value={`${estimatedCalories.toFixed(0)} Kal`}
                             index={1}
                             icon={Fire03Icon}
                         />
