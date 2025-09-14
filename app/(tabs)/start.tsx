@@ -15,7 +15,7 @@ const Start = () => {
   return (
     <>
       <StatusBar style="light" />
-      <ImageBackground imageStyle={{ borderRadius: 12 }} resizeMode='cover' source={images.map} className="px-4 h-screen relative flex justify-end pb-48 " >
+      <ImageBackground imageStyle={{ borderRadius: 12 }} resizeMode='cover' source={images.map} className="px-4 h-screen relative flex justify-end pb-40 " >
         <TouchableOpacity
           activeOpacity={0.75}
           onPress={() => { setDrawerVisible(true) }}
