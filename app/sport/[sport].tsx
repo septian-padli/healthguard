@@ -28,6 +28,7 @@ import { PaceDisplay } from '@/components/PaceCalculations';
 import { CaloriesDisplay } from '@/components/CaloriesCalculations';
 import { isStepDetected, StepCounterDisplay } from '@/app-example/utils/StepDetectionUtils';
 
+
 const SportTracker: React.FC = () => {
     const [sportState, setSportState] = useState<SportState>({
         steps: 0,
